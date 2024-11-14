@@ -26,7 +26,6 @@ async function __modloader_image_delta(knownMods) {
     const zlib = require('zlib');
     const deflate = util.promisify(zlib.deflate);
     const rafResolve = () => new Promise(resolve => requestAnimationFrame(resolve));
-    const yaml = require('./js/libs/js-yaml-master');
     const shaDigest = a => require('crypto').createHash("sha256").update(a).digest("hex");
 
     const cache_base = path.join(base, '..', '.oneloader-image-cache');

@@ -4,16 +4,17 @@
     "name":"OneLoader assistant",
     "description": "A helper mod for OneLoader",
     "manifestVersion": 1,
-    "version": "1.4.1",
+    "version": "1.4.1-ISAT",
     "_flags":[
         "prevent_disable",
         "randomize_plugin_name"
     ],
     "files":{
         "plugins":[
-            "oneloader-assistant.js",
             "oneloader-version-text.js",
-            "oneloader-detect-gomori.js"
+            "oneloader-fix-translation.js",
+            "oneloader-fix-animated-pictures.js",
+            "oneloader-options-menu.js"
         ]
     },
     "asyncExec":[

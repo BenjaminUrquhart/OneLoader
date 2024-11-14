@@ -7,6 +7,7 @@ async function _start_game() {
         "js/libs/pixi-picture.js",
         "js/libs/lz-string.js",
         "js/libs/iphone-inline-video.browser.js",
+        "js/libs/fpsmeter.js",
         "js/rpg_core.js",
         "js/rpg_managers.js",
         "js/rpg_objects.js",
@@ -72,6 +73,7 @@ async function _start_game() {
             $oneLoaderGui.setPbCurr(i + 1);
         }
     }
+
     window.onload();
 
     $oneLoaderGui.container.style.opacity = 0;

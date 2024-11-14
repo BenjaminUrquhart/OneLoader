@@ -2,7 +2,7 @@
     if (window.$modLoader && window.$modLoader.success) {
         // Per-mod regression fixes
         // This needs to be done to fix a performance regression in https://mods.one/mod/enabledebug
-        PluginManager._parameters["yep_debugger"] = $plugins.filter(a => a.name.toLowerCase() === "yep_debugger")[0].parameters;
+        //PluginManager._parameters["yep_debugger"] = $plugins.filter(a => a.name.toLowerCase() === "yep_debugger")[0].parameters;
 
         $modLoader.$runScripts("pre_plugin_injection", {
             PluginManager, $plugins

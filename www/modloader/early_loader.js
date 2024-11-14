@@ -15,6 +15,7 @@
         stat: util.promisify(native_fs.stat)
     };
     const path = require('path');
+    const crypto = require('crypto');
     const base = path.dirname(process.mainModule.filename);
 
     function randomString() {
@@ -72,19 +73,7 @@
         $packageJsonPatchset: []
     }; // BaseModLoader object
 
-    /* Install the argv handler and shadow the true argv object to allow the base game to work normally */ {
-        let key = window.nw.App.argv[0];
-        $modLoader.realArgv = window.nw.App.argv;
-        window.nw.App = new Proxy(window.nw.App, {
-            get(t, p, r) {
-                if (p === "argv") {
-                    return [key];
-                } else {
-                    return Reflect.get(...arguments);
-                }
-            }
-        });
-    }
+    $modLoader.realArgv = window.nw.App.argv;
 
     if ($modLoader.realArgv.includes("--no-mods")) {
         $modLoader.$log("Starting with no mods");
@@ -727,32 +716,6 @@
             native_fs.mkdirSync(path.join(base, "mods"));
         }
 
-        let debasilificationCounter = 0;
-
-        async function debasilify(directory) {
-            let files = await async_fs.readdir(directory);
-            for (let file of files) {
-                let stats = await async_fs.stat(path.join(directory, file));
-                if (stats.isDirectory()) {
-                    await debasilify(path.join(directory, file));
-                } else {
-                    if (file.toLowerCase().endsWith(".basil")) {
-                        let name = file.split(/\.basil$/i)[0];
-                        await async_fs.writeFile(
-                            path.join(directory, name),
-                            await async_fs.readFile(
-                                path.join(directory, file)
-                            )
-                        );
-                        native_fs.unlinkSync(path.join(directory, file));
-
-                        debasilificationCounter++;
-                        $oneLoaderGui.setHt(`Undoing GOMORI-based patching ${debasilificationCounter}`);
-                    }
-                }
-            }
-        }
-
         // Initialize on-screen logging framework
         window._logLine("Loading configuration");
         $oneLoaderGui.pst("Loading...");
@@ -782,16 +745,6 @@
         let knownMods = new Map();
 
         let allMods = new Map();
-
-        if ($modLoader.config._basilFiles) { //Debasilification procedure
-            window._logLine("Gomori-derived mods.json detected, finding, restoring and removing basil files");
-            try {
-                await debasilify(base);
-            } catch (e) { alert(e); }
-            $modLoader.config._basilFiles = undefined;
-            alert("The modloader tried its best to undo GOMORI-derived changes after an upgrade, however it could have missed something. For an optimal experience, it's advised to reinstall the game.");
-            $modLoader.syncConfig();
-        }
 
         $oneLoaderGui.setHt("Loading wasm");
 

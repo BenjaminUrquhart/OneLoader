@@ -22,7 +22,7 @@ locales/
 pnacl/
 swiftshader/
 
-# BASE OMORI STUFF
+# BASE ISAT STUFF
 package.json
 
 /www/data
@@ -34,6 +34,10 @@ package.json
 /www/languages
 /www/maps
 /www/movies
+/www/lib
+/www/greenworks.js
+/www/supertoolsengine.html
+/www/translationengine.html
 /www/editor.json
 /www/package.json
 /www/steam_appid.txt
@@ -42,11 +46,7 @@ latest.log
 
 /www/mods/sdk_bypass.zip
 /www/save
-/www/mods/shibahoodiekel
-/www/mods/nekomori
-/www/mods/dragndrop (11).zip
 /.oneloader-image-cache
 /www/l
 /www/Game.rpgproject
-OMORI.exe
 steam_appid.txt

@@ -1,0 +1,14 @@
+{
+    "$schema": "https://rph.space/oneloader.manifestv1.schema.json",
+    "id":"test",
+    "name":"Test Mod",
+    "description": "Dummy test mod",
+    "manifestVersion": 1,
+    "version": "0.0.1",
+    "_flags":[],
+    "files":{
+        "plugins":["test.js"]
+    },
+    "asyncExec":[],
+    "satisfies": []
+}

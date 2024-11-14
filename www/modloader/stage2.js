@@ -53,7 +53,6 @@ async function _modloader_stage2(knownMods) {
     const zlib = require('zlib');
     const deflate = util.promisify(zlib.deflate);
     const rafResolve = () => new Promise(resolve => requestAnimationFrame(resolve));
-    const yaml = require('./js/libs/js-yaml-master');
 
     await $modLoader.$runScripts("pre_stage_2", {
         knownMods, $modLoader
@@ -287,14 +286,8 @@ async function _modloader_stage2(knownMods) {
 
             window._logLine("| Applying patches with method: " + method);
             let documentBase;
-            if (method === "yaml") {
-                documentBase = yaml.safeLoad(base_file);
-            }
             if (method === "json") {
                 documentBase = JSON.parse(base_file);
-            }
-
-            if (method === "yaml" || method === "json") {
                 for (let [patchset, modid] of patchData) {
                     window._logLine("| | " + modid);
                     documentBase = jsonpatch.applyPatch(documentBase, JSON.parse(patchset), true).newDocument;
@@ -312,9 +305,6 @@ async function _modloader_stage2(knownMods) {
             let lastFile = bruh[bruh.length - 1];
 
             let fin = "";
-            if (method === "yaml") {
-                fin = yaml.dump(documentBase);
-            }
             if (method === "json") {
                 fin = JSON.stringify(documentBase);
             }
