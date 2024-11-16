@@ -826,7 +826,7 @@
         window._logLine("Early loading complete, starting loader stage 2");
         $modLoader.syncConfig();
         if (errorCount > 0) {
-            alert("Early loading complete with " + errorCount + " errors. Please look into latest.log and searching for [ERROR] to identify what the erorrs were.");
+            alert("Early loading complete with " + errorCount + " errors. Please look into latest.log and searching for [ERROR] to identify what the errors were.");
         }
 
         // process require/exclude
@@ -970,47 +970,17 @@
 
         await _modloader_stage2(knownMods);
 
-        window._logLine("Creating GOMORI API backwards compatibility");
-        let _gomori_compat_mods = new Map();
         $modLoader.knownMods = knownMods;
         $modLoader.allMods = allMods;
-
-
-        for (let mod of knownMods.values()) {
-            _gomori_compat_mods.set(mod.json.id, {
-                enabled: true,
-                meta: mod.json,
-                id: mod.json.id // compatibility fix for ModHistory - GOMORI version
-            });
-        }
-
-        $modLoader.mods = _gomori_compat_mods;
         $modLoader.native_fs = native_fs;
         window.$modLoader = new Proxy($modLoader, {
             get(target, param, receiver) {
-                if (param === "mods") {
-                    window._logLine("[WARNING] DEPRECATED USE OF $modLoader.mods DETECTED. PLEASE USE $modLoader.knownMods OR $modLoader.allMods INSTEAD");
-                }
                 if (param === "native_fs") {
                     window._logLine("[WARNING] Usage of the native_fs provider is highly discouraged. Please use the shadowed require('fs')");
                 }
                 return Reflect.get(...arguments);
             }
         });
-
-        // Some software requires GOMORI's original index.html to be present ( https://mods.one/mod/playtest )
-        // Install GOMORI's original index.html into the overlayfs
-        // https://github.com/Gilbert142/gomori/blob/1802acc41225f085f7d5b4349c5feb857e6ed036/www/index.html
-        let gomori_index_html = Buffer.from("eNqtlE1v2zAMhu/5FZruiq5DYeeyD2CHIsPQHXYaJJm1meoLEp00+/Wj4wXI1g0o7Plg0pTfR6QoqXnzfv/u4dvnD2Kg4HebZjZswXS7jeCnCUBGuMGUCtTKrw8f1Vt5OxRNgFaanD2okCyyOYFVHFDOZGM9SOFSJIgsP0N9rbiSobEqawq7598o1hv3pKiYWP3oOPQX5hHhlFOhG9lYgVnO+CmpNqarymN8EgV8K5H/lWIo8Dj7enptc+yloHNmKgbTg54CL7RzEZRGN6h/c17ILrXVAYCucxA8k3a1XgGPnH/VPVc1edtp5BeFkDzs9vf7L58aPX9sGj33btPY1J3FBc8rxgvWlzTGTrnkU7kTlzW8gqormOl2/oM5mjkqRS2ulYeqPdqqMz7j9sApNHoeX4ZQxL0OJv8PVEZHY4GVKP+D91nB2K/kYB5SBIWRewzqiB2krS3pxJtvObnk/rtLa2qcCMFE3r6lrqMkewBHKyGVjy2sZeSCtBZywthxc5ZDsh97jEsBfQqpoJ7N8iSCwfiHutHTBTBdBHq+1X8CtEoELw==", "base64");
-        $modLoader.overlayFS["index.html"] = {
-            injectionPoint: "index.html",
-            ogName: "index.html",
-            mode: "pass",
-            dataSource: {
-                type: "zlib",
-                stream: gomori_index_html
-            }
-        };
 
         window._logLine("Looking for plugin conflicts...");
         let pluginLocks = new Set();

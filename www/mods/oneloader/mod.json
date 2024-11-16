@@ -6,18 +6,20 @@
     "manifestVersion": 1,
     "version": "1.4.1-ISAT",
     "_flags":[
-        "prevent_disable",
-        "randomize_plugin_name"
+        "prevent_disable"
     ],
     "files":{
         "plugins":[
             "oneloader-version-text.js",
-            "oneloader-fix-translation.js",
             "oneloader-fix-animated-pictures.js",
             "oneloader-options-menu.js"
         ]
     },
     "asyncExec":[
+        {
+            "file":"oneloader-fix-db.js",
+            "runat":"pre_window_onload"
+        },
         {
             "file":"oneloader-fix-videos.js",
             "runat":"pre_window_onload"
