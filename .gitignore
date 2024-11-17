@@ -25,6 +25,9 @@ swiftshader/
 # BASE ISAT STUFF
 package.json
 
+/www_isat
+/www_sa3ap
+
 /www/data
 /www/audio
 /www/fonts

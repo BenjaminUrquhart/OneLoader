@@ -1,7 +1,7 @@
 if ($modLoader.isInTestMode) return;
 
 let GH_AUTH="";
-let repo_base="rphsoftware/oneloader";
+let repo_base="BenjaminUrquhart/oneloader";
 
 async function fetchLatestReleaseMeta() {
     let headers = {};

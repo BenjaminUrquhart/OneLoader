@@ -10,9 +10,13 @@
     ],
     "files":{
         "plugins":[
+            "sa3ap/master2015hp_ISATsnippet.js",
             "oneloader-version-text.js",
             "oneloader-fix-animated-pictures.js",
             "oneloader-options-menu.js"
+        ],
+        "data":[
+            "sa3ap/DreamX_Options.json"
         ]
     },
     "asyncExec":[

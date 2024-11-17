@@ -1,4 +1,6 @@
-{
+// TODO: make options menu work in SA3AP
+if (Yanfly.Param.OptionsCategories !== undefined) {
+
     // Hook config management so changes are saved in the right place.
     let Window_Options_getConfigValue = Window_Options.prototype.getConfigValue;
     Window_Options.prototype.getConfigValue = function(symbol) {
@@ -18,7 +20,7 @@
         Window_Options_setConfigValue.call(this, symbol, value);
     };
 
-    // Update option spacing 
+    // Update option spacing
     let Window_OptionsCategory_updateHelp = Window_OptionsCategory.prototype.updateHelp;
     Window_OptionsCategory.prototype.updateHelp = function() {
         if(this._helpWindow && this.currentExt()) {
@@ -74,6 +76,13 @@
         Window_Command_addCommand.call(this, name, symbol, enabled, ext);
     }
 
+    // Helper function
+    Window_Options.prototype.commandExt = function(index) {
+        if(index >= 0) {
+            return this._list[index]?.ext
+        }
+    }
+
     console.log("Injecting options")
 
     // Insert mod toggles into the options menu.
@@ -82,25 +91,49 @@
     let modOptions = []
     let canToggle = true;
     for(let mod of $modLoader.allMods.values()) {
-        canToggle = !mod._flags || !mod._flags.includes("prevent_disable")
+        canToggle = !mod._flags || !mod._flags.includes("prevent_disable");
+        console.log(`Adding ${canToggle ? "toggle" : "label"} for ${mod.name} (${mod.id})`);
         modOptions.push({
             "---Functions---": "",
             "---Settings---": "",
-            CursorLeftCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, false);" : ""),
-            CursorRightCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, true);" : ""),
+            CursorLeftCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, false);" : "this.currentExt().PlayCancel();"),
+            CursorRightCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, true);" : "this.currentExt().PlayCancel();"),
             DefaultConfigCode: '""',
-            DrawItemCode: JSON.stringify(canToggle ? "var rect = this.itemRectForText(index);\nvar statusWidth = this.statusWidth();\nvar titleWidth = rect.width - statusWidth;\nthis.resetTextColor();\nthis.changePaintOpacity(this.isCommandEnabled(index));\nthis.drawOptionsName(index);\nthis.drawOptionsOnOff(index,'','',true);" : "this.drawOptionsName(index); var rect = this.itemRectForText(index); this.resetTextColor(); this.changePaintOpacity(false); var text = 'Cannot be disabled'; var width = this.textWidth(text); this.drawText(text, rect.x + (rect.width - width) / 2, rect.y + rect.height / 2);"),
+
+            DrawItemCode: JSON.stringify("let ext = this.commandExt(index); ext.DrawItem.call(this, index, ext.CanToggle);"),
+
             Enable: JSON.stringify("enable = " + canToggle),
-            Ext: '"ext = this;"',
+            Ext: '"ext = data;"', // Funny
             HelpDesc: JSON.stringify("<wordwrap>" + (mod.description || "No description set")),
             LoadConfigCode: '""',
             MakeCommandCode: JSON.stringify("this.addCommand(name, symbol, enabled, ext);"),
             Name: mod.name,
-            ProcessOkCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, !this.getConfigValue(symbol));" : ""),
+            ProcessOkCode: JSON.stringify(canToggle ? "var index = this.index();\nvar symbol = this.commandSymbol(index);\nthis.changeValue(symbol, !this.getConfigValue(symbol));" : "this.currentExt().PlayCancel();"),
             SaveConfigCode: '"$modLoader.syncConfig();"',
             ShowHide: '"show = true;"',
             Symbol: "MOD_" + mod.id,
-            HideFromAll: true
+            HideFromAll: true,
+
+            CanToggle: canToggle,
+
+            PlayCancel: () => AudioManager.playSe({ name: "Cancel1", volume: 90, pitch: 100, pan: 0 }),
+            DrawItem: function(index, canToggle) {
+                this.resetTextColor();
+                if(canToggle) {
+                    this.changePaintOpacity(this.isCommandEnabled(index));
+                    this.drawOptionsName(index);
+                    this.drawOptionsOnOff(index, "ON", "OFF", true);
+                }
+                else {
+                    this.drawOptionsName(index); 
+                    this.changePaintOpacity(false); 
+
+                    let text = "Cannot be disabled";
+                    let width = this.textWidth(text); 
+                    let rect = this.itemRectForText(index); 
+                    this.drawText(text, rect.x + (rect.width - width) / 2, rect.y + rect.height / 2);
+                }
+            }
         });
     }
     Yanfly.Param.OptionsCategories.push({
