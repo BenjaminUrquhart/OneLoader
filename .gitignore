@@ -28,6 +28,9 @@ package.json
 /www_isat
 /www_sa3ap
 
+# Mod I'm messing with
+/www/mods/no-save-ace
+
 /www/data
 /www/audio
 /www/fonts

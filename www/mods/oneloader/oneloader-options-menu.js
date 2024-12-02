@@ -26,12 +26,15 @@ if (Yanfly.Param.OptionsCategories !== undefined) {
         if(this._helpWindow && this.currentExt()) {
             let data = this.currentExt();
             if (data.hasOwnProperty("OptionSpacing")) {
+                if (!this._optionsWindow._oldItemHeight) {
+                    this._optionsWindow._oldItemHeight = this._optionsWindow.itemHeight;
+                }
                 this._optionsWindow.itemHeight = function() {
                     return data.OptionSpacing;
                 }
             }
-            else {
-                this._optionsWindow.itemHeight = Window_Selectable.prototype.itemHeight;
+            else if (this._optionsWindow._oldItemHeight) {
+                this._optionsWindow.itemHeight = this._optionsWindow._oldItemHeight;
             }
         }
         Window_OptionsCategory_updateHelp.call(this);
