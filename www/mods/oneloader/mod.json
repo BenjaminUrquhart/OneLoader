@@ -21,6 +21,10 @@
     },
     "asyncExec":[
         {
+            "file":"sa3ap/oneloader-options-icon.js",
+            "runat":"pre_plugin_injection"
+        },
+        {
             "file":"oneloader-fix-db.js",
             "runat":"pre_window_onload"
         },

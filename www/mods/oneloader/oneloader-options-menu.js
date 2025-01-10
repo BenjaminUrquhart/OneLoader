@@ -1,5 +1,179 @@
-// TODO: make options menu work in SA3AP
-if (Yanfly.Param.OptionsCategories !== undefined) {
+if (Yanfly.Param.OptionsCategories === undefined) {
+    // START AGAIN START AGAIN START AGAIN: a prologue
+
+
+    // I can't make heads or tails of what plugin SA3AP uses for options
+    // so I'm rolling my own.
+
+
+    // Window_TitleCommand
+
+    let Window_TitleCommand_makeCommandList = Window_TitleCommand.prototype.makeCommandList;
+    Window_TitleCommand.prototype.makeCommandList = function() {
+        Window_TitleCommand_makeCommandList.call(this);
+        this.addCommand("Mods", 'mods');
+
+        // Add mods option to main menu, just above the quit button
+        let cmds = this._list;
+        let modCmd = cmds.pop();
+        for(let i = 0; i < cmds.length; i++) {
+            let cmd = cmds[i];
+            if(cmd.symbol === 'exitGame') {
+                cmds.splice(i, 0, modCmd);
+                break;
+            }
+        }
+    }
+
+
+    // Scene_Title
+
+    let Scene_Title_createCommandWindow = Scene_Title.prototype.createCommandWindow;
+    Scene_Title.prototype.createCommandWindow = function() {
+        Scene_Title_createCommandWindow.call(this);
+        this._commandWindow.setHandler('mods', this.processMods.bind(this));
+        this._commandWindow.y += 40; // move window down a little to not cover the game title
+    }
+
+    Scene_Title.prototype.processMods = function() {
+        SceneManager.push(Scene_Mods);
+    }
+
+
+    // Scene_Menu
+
+    let Scene_Menu_createCommandWindow = Scene_Menu.prototype.createCommandWindow;
+    Scene_Menu.prototype.createCommandWindow = function() {
+        Scene_Menu_createCommandWindow.call(this);
+        this._commandWindow.setHandler('mods', this.processMods.bind(this));
+    }
+
+    Scene_Menu.prototype.processMods = function() {
+        SceneManager.push(Scene_Mods);
+    }
+
+
+    // Window_MenuCommand
+
+    let Window_MenuCommand_makeCommandList = Window_MenuCommand.prototype.makeCommandList;
+    Window_MenuCommand.prototype.makeCommandList = function() {
+        Window_MenuCommand_makeCommandList.call(this);
+        this.addCommand("Mods", 'mods');
+
+        let cmds = this._list;
+        let modCmd = cmds.pop();
+        for(let i = 0; i < cmds.length; i++) {
+            let cmd = cmds[i];
+            if(cmd.symbol === 'save') {
+                cmds.splice(i, 0, modCmd);
+                break;
+            }
+        }
+    }
+
+
+    // Scene_Mods
+
+    function Scene_Mods() {
+        this.initialize.apply(this, arguments);
+    }
+
+    Scene_Mods.prototype = Object.create(Scene_Options.prototype);
+    Scene_Mods.prototype.constructor = Scene_Mods;
+
+    Scene_Mods.prototype.create = function() {
+        Scene_Options.prototype.create.apply(this, arguments);
+        this.updatePlacements();
+    }
+
+    Scene_Mods.prototype.terminate = function() {
+        Scene_Options.prototype.terminate.call(this);
+        $modLoader.syncConfig();
+    }
+
+    Scene_Mods.prototype.updatePlacements = function() {
+        // TODO: better layout
+
+        //this._optionsWindow.x = 0;
+        //this._optionsWindow.width = this.width;
+        this._optionsWindow.y = this._helpWindow.y + this._helpWindow.height;
+        this._optionsWindow.height = this.height - this._helpWindow.height + this._helpWindow.y;
+    }
+
+    Scene_Mods.prototype.createOptionsWindow = function() {
+        this.createHelpWindow();
+        this._helpWindow.setText("test");
+        this._optionsWindow = new Window_Mods();
+        this._optionsWindow.setHandler('cancel', this.popScene.bind(this));
+        this._optionsWindow.setHelpWindow(this._helpWindow);
+        this.addWindow(this._optionsWindow);
+    }
+
+
+    // Window_Mods
+
+    function Window_Mods() {
+        this.initialize.apply(this, arguments);
+    }
+
+    Window_Mods.prototype = Object.create(Window_Options.prototype);
+    Window_Mods.prototype.constructor = Window_Mods;
+
+    Window_Mods.prototype.updatePlacements = () => {};
+
+    Window_Mods.prototype.initialize = function() {
+        Window_Options.prototype.initialize.call(this);
+    }
+
+    Window_Mods.prototype.isVolumeSymbol = () => false;
+
+    Window_Mods.prototype.makeCommandList = function() {
+        let canToggle;
+        for(let mod of $modLoader.allMods.values()) {
+            canToggle = !mod._flags || !mod._flags.includes("prevent_disable");
+            this.addCommand(mod.name, mod.id, canToggle);
+        }
+    }
+
+    Window_Mods.prototype.updateHelp = function() {
+        // TODO: description line wrapping
+
+        let id = this._list[this.index()].symbol;
+        let mod = $modLoader.allMods.get(id);
+        this._helpWindow.setText(mod ? mod.description : "Invalid mod: " + id);
+    }
+
+    Window_Mods.prototype.changeValue = function() {
+        if(!this._list[this.index()].enabled) {
+            SoundManager.playCancel();
+            return;
+        }
+
+        // Bypass plugin
+        if(DreamX?.Options?.Window_Options_changeValue) {
+            DreamX.Options.Window_Options_changeValue.apply(this, arguments);
+        }
+        else {
+            Window_Options.prototype.apply(this, arguments);
+        }
+    }
+
+    Window_Mods.prototype.statusText = function(index) {
+        return this._list[index].enabled ? this.booleanStatusText(this.getConfigValue(this.commandSymbol(index))) : "N/A";
+    }
+
+    Window_Mods.prototype.getConfigValue = function(symbol) {
+        return $modLoader.config[symbol];
+    }
+
+    Window_Mods.prototype.setConfigValue = function(symbol, value) {
+        $modLoader.config[symbol] = !!value;
+    }
+
+    // end
+}
+else {
+    // In Stars And Time
 
     // Hook config management so changes are saved in the right place.
     let Window_Options_getConfigValue = Window_Options.prototype.getConfigValue;
