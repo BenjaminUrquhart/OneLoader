@@ -154,7 +154,7 @@ if (Yanfly.Param.OptionsCategories === undefined) {
             DreamX.Options.Window_Options_changeValue.apply(this, arguments);
         }
         else {
-            Window_Options.prototype.apply(this, arguments);
+            Window_Options.prototype.changeValue.apply(this, arguments);
         }
     }
 
