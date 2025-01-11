@@ -36,6 +36,7 @@ if (Yanfly.Param.OptionsCategories === undefined) {
     }
 
     Scene_Title.prototype.processMods = function() {
+        this._commandWindow.close();
         SceneManager.push(Scene_Mods);
     }
 
@@ -94,19 +95,26 @@ if (Yanfly.Param.OptionsCategories === undefined) {
     Scene_Mods.prototype.updatePlacements = function() {
         // TODO: better layout
 
-        //this._optionsWindow.x = 0;
-        //this._optionsWindow.width = this.width;
-        this._optionsWindow.y = this._helpWindow.y + this._helpWindow.height;
-        this._optionsWindow.height = this.height - this._helpWindow.height + this._helpWindow.y;
+        this._helpWindow.y = Graphics.boxHeight - this._helpWindow.height;
+
+        this._optionsWindow.x = 0;
+        this._optionsWindow.width = this.width;
+
+        this._optionsWindow.y = this._titleWindow.y + this._titleWindow.height;
+        this._optionsWindow.height = this.height - this._titleWindow.height + this._titleWindow.y - this._helpWindow.height;
     }
 
     Scene_Mods.prototype.createOptionsWindow = function() {
-        this.createHelpWindow();
-        this._helpWindow.setText("test");
+        this._helpWindow = new Window_Help(4);
+        this._helpWindow.setText("---");
+        this.addWindow(this._helpWindow);
         this._optionsWindow = new Window_Mods();
         this._optionsWindow.setHandler('cancel', this.popScene.bind(this));
         this._optionsWindow.setHelpWindow(this._helpWindow);
         this.addWindow(this._optionsWindow);
+        this._titleWindow = new Window_Help(2);
+        this._titleWindow.setText("Manage loaded mods.\nChanges will take place on reload or restart.");
+        this.addWindow(this._titleWindow);
     }
 
 
@@ -119,11 +127,15 @@ if (Yanfly.Param.OptionsCategories === undefined) {
     Window_Mods.prototype = Object.create(Window_Options.prototype);
     Window_Mods.prototype.constructor = Window_Mods;
 
-    Window_Mods.prototype.updatePlacements = () => {};
-
     Window_Mods.prototype.initialize = function() {
         Window_Options.prototype.initialize.call(this);
     }
+
+    Window_Mods.prototype.windowWidth = function() {
+        return Graphics.boxWidth;
+    }
+
+    Window_Mods.prototype.updatePlacements = () => {};
 
     Window_Mods.prototype.isVolumeSymbol = () => false;
 
@@ -136,11 +148,77 @@ if (Yanfly.Param.OptionsCategories === undefined) {
     }
 
     Window_Mods.prototype.updateHelp = function() {
-        // TODO: description line wrapping
+        // Someone please break this
 
         let id = this._list[this.index()].symbol;
         let mod = $modLoader.allMods.get(id);
-        this._helpWindow.setText(mod ? mod.description : "Invalid mod: " + id);
+        let desc;
+        if(mod) {
+            desc = mod.description;
+            if(desc.trim().length === 0) {
+                desc = "No description provided.";
+            }
+            else {
+                let spaceWidth = this._helpWindow.textWidth(" ");
+                let maxWidth = this._helpWindow.width - this._helpWindow.textPadding() * 2;
+                let words = desc.split(" ");
+                let lines = [];
+                let line = "";
+                let lineWidth = 0;
+                let wordWidth;
+                for(let word of words) {
+                    wordWidth = this._helpWindow.textWidth(word);
+                    if(lineWidth + wordWidth >= maxWidth) {
+                        if(lineWidth > 0) {
+                            lines.push(line);
+                        }
+                        if(wordWidth >= maxWidth) {
+                            // word is too large to fit onto one line
+                            // so break it up instead
+
+                            // somehow it runs off the side anyway
+                            let maxWidthWidth = maxWidth - this._helpWindow.textPadding() * 4;
+                            let segment = "";
+                            let segmentWidth = 0;
+                            let segmentIndex = 0;
+                            let chrWidth;
+                            let chr;
+                            while(segmentIndex < word.length) {
+                                chr = word[segmentIndex++];
+                                chrWidth = this._helpWindow.textWidth(chr);
+                                if(segmentWidth + chrWidth >= maxWidthWidth) {
+                                    lines.push(segment);
+                                    segmentWidth = 0;
+                                    segment = "";
+                                }
+                                segmentWidth += chrWidth;
+                                segment += chr;
+                            }
+                            if(segment.length > 0) {
+                                lineWidth = segmentWidth;
+                                line = segment + " ";
+                            }
+                            else {
+                                lineWidth = -spaceWidth;
+                                line = "";
+                            }
+                        }
+                        else {
+                            lineWidth = wordWidth;
+                            line = word + " ";
+                        }
+                    }
+                    else {
+                        lineWidth += wordWidth + spaceWidth;
+                        line += word + " ";
+                    }
+                    lineWidth += spaceWidth;
+                }
+                lines.push(line);
+                desc = lines.join("\n");
+            }
+        }
+        this._helpWindow.setText(desc || ("Invalid mod: " + id));
     }
 
     Window_Mods.prototype.changeValue = function() {

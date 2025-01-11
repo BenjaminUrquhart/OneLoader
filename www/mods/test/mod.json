@@ -2,7 +2,7 @@
     "$schema": "https://rph.space/oneloader.manifestv1.schema.json",
     "id":"test",
     "name":"Test Mod",
-    "description": "Dummy test mod",
+    "description": "This sequence of text has no line breaks, they are automatically inserted. abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
     "manifestVersion": 1,
     "version": "0.0.1",
     "_flags":[],

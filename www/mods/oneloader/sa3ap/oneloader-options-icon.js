@@ -10,7 +10,7 @@
             key = "Command Symbol " + i;
             if(!params[key] || String(params[key]).trim().length === 0) {
                 params[key] = "mods";
-                params["Command Icon " + i] = 67;
+                params["Command Icon " + i] = 118;
                 found = true;
                 break;
             }
@@ -23,7 +23,7 @@
             // The plugin eval's certain parameters within that scope, so we can abuse
             // this to get stuff set up.
 
-            params["Gold Window Y"] = "if(!icons['mods']) { icons['mods'] = 67; this._commandWindow.drawAllItems(); } " + params["Gold Window Y"];
+            params["Gold Window Y"] = "if(!icons['mods']) { icons['mods'] = 118; this._commandWindow.drawAllItems(); } " + params["Gold Window Y"];
         }
     }
 }
