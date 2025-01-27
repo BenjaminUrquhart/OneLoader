@@ -1,8 +1,8 @@
 {
     // Insert mod toggle menu icon into the prologue's ingame menu
     const plugin = $plugins.filter(p => p.name === "SRD_AltMenuScreen_BustIcons")[0];
-    const params = plugin?.parameters;
-    if(params) {
+    if(plugin) {
+        const params = plugin.parameters;
         // Attempt to find free symbol slot
         let found = false;
         let key;

@@ -20,9 +20,12 @@ if (Yanfly.Param.OptionsCategories === undefined) {
             let cmd = cmds[i];
             if(cmd.symbol === 'exitGame') {
                 cmds.splice(i, 0, modCmd);
-                break;
+                return;
             }
         }
+
+        // failsafe
+        cmds.push(modCmd);
     }
 
 
@@ -67,9 +70,12 @@ if (Yanfly.Param.OptionsCategories === undefined) {
             let cmd = cmds[i];
             if(cmd.symbol === 'save') {
                 cmds.splice(i, 0, modCmd);
-                break;
+                return;
             }
         }
+
+        // failsafe
+        cmds.push(modCmd);
     }
 
 
@@ -228,7 +234,7 @@ if (Yanfly.Param.OptionsCategories === undefined) {
         }
 
         // Bypass plugin
-        if(DreamX?.Options?.Window_Options_changeValue) {
+        if(DreamX && DreamX.Options && DreamX.Options.Window_Options_changeValue) {
             DreamX.Options.Window_Options_changeValue.apply(this, arguments);
         }
         else {
@@ -333,8 +339,8 @@ else {
 
     // Helper function
     Window_Options.prototype.commandExt = function(index) {
-        if(index >= 0) {
-            return this._list[index]?.ext
+        if(index >= 0 && this._list[index]) {
+            return this._list[index].ext
         }
     }
 
