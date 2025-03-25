@@ -1,6 +1,7 @@
 {
     const native_fs = require('fs');
     const util = require('util');
+    const isWindows = (['Win32', 'Win64', 'Windows', 'WinCE'].indexOf(window.navigator.platform) != -1);
     const async_fs = { // old node polyfill bruh
         readdir: util.promisify(native_fs.readdir),
         readFile: util.promisify(native_fs.readFile),
@@ -11,7 +12,7 @@
 
     async function _vfs_resolve_file(relativePath) {
         $modLoader.$vfsTrace("[ResolveSyncStart] " + relativePath);
-        relativePath = relativePath.toLowerCase();
+        relativePath = isWindows ? relativePath.toLowerCase() : relativePath;
         let dirTree = _overlay_fs_split_path(relativePath);
         let currentDir = $modLoader.overlayFS;
         let fileName = dirTree.pop();
@@ -72,7 +73,7 @@
 
     function _vfs_resolve_file_sync(relativePath) {
         $modLoader.$vfsTrace("[ResolveSyncStart] " + relativePath);
-        relativePath = relativePath.toLowerCase();
+        relativePath = isWindows ? relativePath.toLowerCase() : relativePath;
         let dirTree = _overlay_fs_split_path(relativePath);
         let currentDir = $modLoader.overlayFS;
         let fileName = dirTree.pop();
